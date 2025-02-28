@@ -8,7 +8,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Set environment variables for testing
 os.environ["TELEGRAM_TOKEN"] = "test_token"
-os.environ["ANTHROPIC_API_KEY"] = "test_key"
 
 # Add pytest-asyncio plugin
 pytest_plugins = ["pytest_asyncio"]
