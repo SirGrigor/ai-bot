@@ -2,17 +2,25 @@ import pytest
 import os
 from unittest.mock import patch, MagicMock
 from sqlalchemy.orm import Session
-from database.database import init_db, get_db, engine, Base
-from database.models import User, Book, Chapter
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from database.database import init_db, get_db, engine
+from database.models import Base, User, Book, Chapter
 
 @pytest.fixture
 def test_db():
     """Create a test database in memory"""
-    # Create tables in memory database
-    Base.metadata.create_all(engine)
+    # Create an in-memory SQLite database
+    test_engine = create_engine('sqlite:///:memory:')
+    
+    # Create all tables in the test database
+    Base.metadata.create_all(test_engine)
+    
+    # Create a session factory
+    TestSessionLocal = sessionmaker(bind=test_engine)
     
     # Create a session
-    db = next(get_db())
+    db = TestSessionLocal()
     
     yield db
     
@@ -21,15 +29,33 @@ def test_db():
 
 def test_init_db():
     """Test database initialization"""
-    with patch('ai_bot.database.database.Base.metadata.create_all') as mock_create_all:
+    with patch('database.database.Base.metadata.create_all') as mock_create_all:
         init_db()
         mock_create_all.assert_called_once_with(bind=engine)
 
 def test_get_db():
     """Test database session creation and cleanup"""
-    db = next(get_db())
-    assert isinstance(db, Session)
-    db.close()
+    # Mock the SessionLocal to return a mock session
+    with patch('database.database.SessionLocal') as mock_session_local:
+        mock_session = MagicMock()
+        mock_session_local.return_value = mock_session
+        
+        # Get a session from the generator
+        session = next(get_db())
+        
+        # Check if the session is the mock session
+        assert session == mock_session
+        
+        # Check if close was called when the generator is done
+        mock_session.close.assert_not_called()  # Not called yet
+        
+        # Simulate the end of the with block
+        try:
+            next(get_db())
+        except StopIteration:
+            pass
+        
+        mock_session.close.assert_called_once()
 
 def test_user_model(test_db):
     """Test User model"""

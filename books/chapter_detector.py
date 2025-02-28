@@ -13,8 +13,8 @@ def detect_chapters(text):
         r'(?i)^[ivxlcdm]+\.\s+',  # "I. ", "II. ", etc. (Roman numerals)
     ]
     
-    # Combine patterns
-    combined_pattern = '|'.join(f'({pattern})' for pattern in chapter_patterns)
+    # Combine patterns - remove the parentheses that were causing issues
+    combined_pattern = '|'.join(pattern for pattern in chapter_patterns)
     
     # Split text by lines
     lines = text.split('\n')

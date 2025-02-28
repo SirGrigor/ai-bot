@@ -56,8 +56,8 @@ async def test_help_command(mock_update, mock_context):
     assert "Book Retention Bot Commands" in mock_update.message.reply_markdown.call_args[0][0]
 
 @pytest.mark.asyncio
-@patch('ai_bot.bot.command_handler.get_user')
-@patch('ai_bot.bot.command_handler.create_user')
+@patch('bot.command_handler.get_user')
+@patch('bot.command_handler.create_user')
 async def test_register_command_new_user(mock_create_user, mock_get_user, mock_update, mock_context):
     """Test the /register command for a new user"""
     mock_get_user.return_value = None
@@ -72,8 +72,8 @@ async def test_register_command_new_user(mock_create_user, mock_get_user, mock_u
     assert "America/New_York" in mock_update.message.reply_text.call_args[0][0]
 
 @pytest.mark.asyncio
-@patch('ai_bot.bot.command_handler.get_user')
-@patch('ai_bot.bot.command_handler.update_user_preferences')
+@patch('bot.command_handler.get_user')
+@patch('bot.command_handler.update_user_preferences')
 async def test_register_command_existing_user(mock_update_preferences, mock_get_user, mock_update, mock_context):
     """Test the /register command for an existing user"""
     mock_user = MagicMock()
@@ -89,8 +89,8 @@ async def test_register_command_existing_user(mock_update_preferences, mock_get_
     assert "Europe/London" in mock_update.message.reply_text.call_args[0][0]
 
 @pytest.mark.asyncio
-@patch('ai_bot.bot.message_router.get_user')
-@patch('ai_bot.bot.message_router.update_user_activity')
+@patch('bot.message_router.get_user')
+@patch('bot.message_router.update_user_activity')
 async def test_handle_document_unsupported_file(mock_update_activity, mock_get_user, mock_update, mock_context):
     """Test handling an unsupported document type"""
     mock_user = MagicMock()
@@ -108,9 +108,9 @@ async def test_handle_document_unsupported_file(mock_update_activity, mock_get_u
     assert "not supported" in mock_update.message.reply_text.call_args[0][0]
 
 @pytest.mark.asyncio
-@patch('ai_bot.bot.message_router.get_user')
-@patch('ai_bot.bot.message_router.update_user_activity')
-@patch('ai_bot.bot.message_router.process_book_file')
+@patch('bot.message_router.get_user')
+@patch('bot.message_router.update_user_activity')
+@patch('bot.message_router.process_book_file')
 async def test_handle_document_supported_file(mock_process_book, mock_update_activity, mock_get_user, mock_update, mock_context):
     """Test handling a supported document type"""
     mock_user = MagicMock()

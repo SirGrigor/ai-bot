@@ -50,7 +50,7 @@ async def test_error_handler_unauthorized():
     context.error = Exception("Unauthorized: Bot was blocked by the user")
     
     # Mock logger
-    with patch('ai_bot.errors.error_handler.logger') as mock_logger:
+    with patch('errors.error_handler.logger') as mock_logger:
         await error_handler(update, context)
         
         # Check if error was logged
