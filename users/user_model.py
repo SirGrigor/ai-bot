@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from ai_bot.database.models import User
+from database.models import User
 from datetime import datetime
 import pytz
 

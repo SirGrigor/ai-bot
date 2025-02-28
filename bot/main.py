@@ -3,11 +3,11 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 import os
 from dotenv import load_dotenv
-from ai_bot.database.database import init_db
-from ai_bot.bot.command_handler import register_command_handlers
-from ai_bot.bot.message_router import register_message_handlers
-from ai_bot.errors.logger import setup_logger
-from ai_bot.errors.error_handler import error_handler
+from database.database import init_db
+from bot.command_handler import register_command_handlers
+from bot.message_router import register_message_handlers
+from errors.logger import setup_logger
+from errors.error_handler import error_handler
 
 # Load environment variables
 load_dotenv()

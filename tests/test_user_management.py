@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from datetime import datetime
 import pytz
-from ai_bot.users.user_model import get_user, create_user, update_user_activity, update_user_preferences
+from users.user_model import get_user, create_user, update_user_activity, update_user_preferences
 
 @pytest.fixture
 def mock_db():

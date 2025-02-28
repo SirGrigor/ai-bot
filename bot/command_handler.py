@@ -1,9 +1,9 @@
 from telegram.ext import Application, CommandHandler, CallbackContext
 from telegram import Update
-from ai_bot.database.database import db_session
-from ai_bot.users.user_model import get_user, create_user, update_user_preferences
-from ai_bot.books.book_model import create_book, get_user_books, get_book, get_book_chapters
-from ai_bot.errors.logger import setup_logger
+from database.database import db_session
+from users.user_model import get_user, create_user, update_user_preferences
+from books.book_model import create_book, get_user_books, get_book, get_book_chapters
+from errors.logger import setup_logger
 import pytz
 
 logger = setup_logger(__name__)

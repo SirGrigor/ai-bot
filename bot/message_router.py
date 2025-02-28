@@ -1,9 +1,9 @@
 from telegram.ext import Application, MessageHandler, filters, CallbackContext, ConversationHandler
 from telegram import Update
-from ai_bot.database.database import db_session
-from ai_bot.users.user_model import get_user, update_user_activity
-from ai_bot.books.book_model import process_book_file
-from ai_bot.errors.logger import setup_logger
+from database.database import db_session
+from users.user_model import get_user, update_user_activity
+from books.book_model import process_book_file
+from errors.logger import setup_logger
 
 logger = setup_logger(__name__)
 
@@ -85,7 +85,7 @@ async def handle_text(update: Update, context: CallbackContext) -> None:
 
 def register_message_handlers(application: Application):
     """Register all message handlers"""
-    application.add_handler(MessageHandler(filters.DOCUMENT, handle_document))
+    application.add_handler(MessageHandler(filters.Document, handle_document))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     
     logger.info("Message handlers registered")

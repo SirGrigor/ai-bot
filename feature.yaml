@@ -1,0 +1,429 @@
+feature_name: "Book Retention System"
+description: "Comprehensive Telegram bot for processing, analyzing, and creating spaced repetition learning schedules for books"
+version: "1.0.0"
+
+project_structure:
+  root:
+    directories:
+      - ai-bot: "/"
+      - tests: "/tests"
+      - templates: "/templates"
+      - logs: "/logs"
+      - data: "/data"   # For SQLite database and book storage
+    files:
+      - pyproject.toml  # Poetry configuration
+      - poetry.lock     # Poetry lock file
+      - config.example.json
+      - Dockerfile
+      - docker-compose.yml
+      - README.md
+      - file_registry.yaml
+
+register_files: true
+
+components:
+  telegram_bot:
+    location: "/ai-bot/bot/"
+    files:
+      - main.py
+      - utils.py
+      - handlers.py
+      - command_handler.py
+      - message_router.py
+    actions:
+      - Setup webhook integration
+      - Handle incoming messages
+      - Manage user sessions
+      - Process commands
+      - Route messages to appropriate handlers
+    details:
+      - Webhook validation with Telegram API
+      - Command routing (/start, /book, etc.)
+      - Error handling for network issues
+      - Session management and state persistence
+      - Message queue for long-running operations
+    tdd:
+      - Test webhook URL validation
+      - Test message handler routing
+      - Test session persistence
+      - Test command parsing and validation
+      - Test error handling and recovery
+
+  user_management:
+    location: "/ai-bot/users/"
+    files:
+      - user_model.py
+      - authentication.py
+      - preferences.py
+      - timezone_handler.py
+    actions:
+      - Register new users with timezone
+      - Manage user preferences
+      - Handle authentication
+      - Store user data in SQLite
+    commands:
+      - "/start": "Initial welcome message explaining the service"
+      - "/register [timezone]": "Create user account with timezone preference"
+      - "/preferences": "Set notification times, content depth preferences"
+    details:
+      - User data stored in SQLite with user_id as primary key
+      - Timezone conversion for scheduled notifications
+      - Preference settings for notification frequency
+      - User authentication and session tracking
+    tdd:
+      - Test user registration process
+      - Test timezone validation and conversion
+      - Test preference updating
+      - Test SQLite integration
+
+  book_management:
+    location: "/ai-bot/books/"
+    files:
+      - book_model.py
+      - library.py
+      - file_processor.py
+      - text_extractor.py
+      - metadata_extractor.py
+      - chapter_detector.py
+    actions:
+      - Process uploaded book files
+      - Extract text content
+      - Detect chapter boundaries
+      - Store book metadata
+      - Organize user libraries
+    commands:
+      - "/browse [category]": "View curated books by category"
+      - "/search [query]": "Find specific books by title/author"
+      - "/add [title] [author]": "Manually add a book"
+      - "/upload": "Upload book file (PDF, EPUB, etc.)"
+      - "/mybooks": "View books in progress/completed"
+    details:
+      - Support for PDF, EPUB, MOBI, TXT formats
+      - Text extraction using appropriate libraries (PyPDF2, EbookLib, etc.)
+      - Text cleaning (headers/footers removal, encoding fixes)
+      - Chapter boundary detection using regex patterns
+      - Content stored in chunks with metadata in SQLite
+    tdd:
+      - Test file format detection
+      - Test text extraction from various formats
+      - Test chapter boundary detection
+      - Test metadata extraction
+      - Test book search functionality
+
+  book_processing:
+    location: "/ai-bot/processing/"
+    files:
+      - chunker.py
+      - tokenizer.py
+      - pipeline.py
+      - job_manager.py
+      - status_tracker.py
+    actions:
+      - Split book content into processable chunks
+      - Manage processing jobs
+      - Track processing status
+      - Optimize chunks for Claude context window
+    details:
+      - Max chunk size of 100k tokens for Claude 3.5 context window
+      - Chapters preserved as logical units where possible
+      - Each chunk tagged with position and metadata
+      - Content metadata includes:
+          - Chapter title/number
+          - Position in book (percentage)
+          - Estimated reading time
+          - Key terms frequency analysis
+    tdd:
+      - Test chunking algorithm
+      - Test token counting
+      - Test job queue management
+      - Test status reporting accuracy
+
+  ai_analysis:
+    location: "/ai-bot/analysis/"
+    files:
+      - claude_chapter_analyzer.py
+      - claude_synthesizer.py
+      - knowledge_graph.py
+      - concept_extractor.py
+      - prompt_templates.py
+    actions:
+      - Analyze book content with Claude
+      - Extract key concepts and arguments
+      - Create knowledge graphs
+      - Synthesize book-wide understanding
+    commands:
+      - "/summary [book_id]": "Receive AI-generated book overview"
+      - "/concepts [book_id]": "Get key takeaways as bullet points"
+      - "/estimate [book_id]": "Show reading and learning time estimates"
+    details:
+      - Two-Stage AI Analysis:
+          - Stage 1 (Claude 3.5 Sonnet):
+              - Processes each chapter/chunk individually
+              - Extracts main arguments, key concepts, supporting evidence
+              - Creates chapter-level knowledge graph
+              - Identifies chapter-specific terminology
+              - Prompt template includes reading comprehension directives
+          - Stage 2 (Claude 3.7):
+              - Synthesizes all chapter analyses
+              - Creates book-wide concept hierarchy
+              - Identifies cross-chapter themes
+              - Generates multi-tiered summaries
+              - Creates spaced repetition learning materials
+              - Maps concepts to repetition schedules
+    tdd:
+      - Test API integration with Anthropic
+      - Test prompt effectiveness
+      - Test concept extraction accuracy
+      - Test knowledge graph generation
+      - Test synthesis quality metrics
+
+  api_integration:
+    location: "/ai-bot/api/"
+    files:
+      - anthropic_client.py
+      - rate_limiter.py
+      - error_handler.py
+      - response_parser.py
+    actions:
+      - Handle API authentication
+      - Manage rate limits
+      - Process API responses
+      - Handle errors and retries
+    details:
+      - Anthropic API handlers:
+          - claude_chapter_analyzer.py - Handles Claude 3.5 Sonnet
+          - claude_synthesizer.py - Handles Claude 3.7
+      - Simple asynchronous processing using Python threads
+      - Rate limiting and retry logic:
+          - Exponential backoff on API failures
+          - Max 3 retries per API call
+          - Detailed error logging
+    tdd:
+      - Test API error handling
+      - Test rate limiting functionality
+      - Test retry logic
+      - Test response parsing
+
+  spaced_repetition:
+    location: "/ai-bot/learning/"
+    files:
+      - scheduler.py
+      - content_generator.py
+      - notification_manager.py
+      - interval_handler.py
+    actions:
+      - Create spaced repetition schedules
+      - Generate interval-appropriate content
+      - Manage notifications
+      - Track learning progress
+    commands:
+      - "/schedule [book_id]": "Set up learning schedule"
+      - "/pause [book_id]": "Temporarily pause schedule"
+      - "/resume [book_id]": "Resume paused schedule"
+      - "/recap [book_id]": "Core concept reminders (Day 1)"
+      - "/connect [book_id]": "Concept connections (Day 3)"
+      - "/apply [book_id]": "Application prompts (Day 7)"
+      - "/master [book_id]": "Comprehensive review (Day 30)"
+    details:
+      - Scheduled Learning Reminders:
+          - Intervals: 1 day, 3 days, 7 days, 30 days (configurable)
+          - Simple APScheduler for time-based task execution
+          - Background thread processes pending notifications
+      - Content Variation by Interval:
+          - Day 1 (/recap [book_id]):
+              - Core concept reminders
+              - 3-5 key points from book
+              - Simple recall questions
+              - Content stored in day1_content table
+          - Day 3 (/connect [book_id]):
+              - Concept connections
+              - Relationship between concepts
+              - Application examples
+              - More complex questions
+              - Content stored in day3_content table
+          - Day 7 (/apply [book_id]):
+              - Application prompts
+              - Real-world application scenarios
+              - Implementation suggestions
+              - Synthesis questions
+              - Content stored in day7_content table
+          - Day 30 (/master [book_id]):
+              - Comprehensive review
+              - Full concept integration
+              - Long-term retention strategies
+              - Teaching prompts
+              - Content stored in day30_content table
+    tdd:
+      - Test schedule creation
+      - Test notification timing accuracy
+      - Test content generation by interval
+      - Test pause/resume functionality
+
+  interactive_learning:
+    location: "/ai-bot/interactive/"
+    files:
+      - quiz_generator.py
+      - response_evaluator.py
+      - teaching_prompts.py
+      - feedback_generator.py
+    actions:
+      - Generate quizzes and questions
+      - Evaluate user responses
+      - Provide teaching opportunities
+      - Generate personalized feedback
+    commands:
+      - "/quiz [book_id]": "Get multiple-choice questions"
+      - "/explain [concept]": "Free text response to concept"
+      - "/progress [book_id]": "View question completion stats"
+      - "/teach [concept]": "Get prompts to explain concept"
+      - "/improve [concept]": "Get suggestions to improve explanation"
+    details:
+      - Question & Response System:
+          - Answer evaluation using AI (correct/partially correct/incorrect)
+          - Response tracking stored in user_responses table
+          - Confidence scoring based on answer quality
+      - Teaching Prompt Generator:
+          - /teach [concept] - Get prompts to explain concept
+          - AI evaluates user's teaching explanation
+          - Feedback provided on clarity and accuracy
+          - /improve [concept] - Get suggestions to improve explanation
+          - Teaching quality metrics stored in teaching_metrics table
+    tdd:
+      - Test quiz generation
+      - Test response evaluation accuracy
+      - Test teaching prompt effectiveness
+      - Test feedback quality
+
+  analytics:
+    location: "/ai-bot/analytics/"
+    files:
+      - metrics.py
+      - visualizations.py
+      - export_system.py
+      - comparison_tools.py
+    actions:
+      - Track user engagement metrics
+      - Generate learning insights
+      - Export learning materials
+      - Compare book learning progress
+    commands:
+      - "/stats [book_id]": "View personal retention metrics"
+      - "/compare [book_id1] [book_id2]": "Compare learning across books"
+      - "/export [book_id] [format]": "Export notes and insights"
+    details:
+      - Engagement Analytics:
+          - Tracked metrics:
+              - Completion rate of spaced repetition cycles
+              - Question response accuracy over time
+              - Engagement consistency score
+              - Concept mastery percentage
+          - Simple text-based charts for Telegram
+      - Advanced Command Interface:
+          - /help - List all available commands with descriptions
+          - /status - Current progress across all books
+          - /skip [concept] - Move to next concept
+          - /restart [book_id] - Begin book from scratch
+          - /feedback [text] - Submit user feedback
+          - /export [book_id] [format] - Export notes and insights
+    tdd:
+      - Test metric calculation accuracy
+      - Test export functionality
+      - Test comparison algorithms
+
+database:
+  provider: "SQLite"
+  location: "/ai-bot/database/"
+  files:
+    - database.py
+    - models.py
+    - schema.py
+    - migrations.py
+  tables:
+    - users: "User profiles and preferences"
+    - books: "Book metadata and processing status"
+    - chapters: "Processed chapter content"
+    - chapter_analyses: "Claude 3.5 outputs"
+    - book_syntheses: "Claude 3.7 outputs"
+    - learning_materials: "Generated content for intervals"
+    - user_progress: "Learning and retention metrics"
+    - scheduled_messages: "Pending notifications"
+    - day1_content: "Core concept reminders"
+    - day3_content: "Concept connections"
+    - day7_content: "Application prompts"
+    - day30_content: "Comprehensive review content"
+    - user_responses: "User quiz responses"
+    - teaching_metrics: "Teaching quality metrics"
+  details:
+    - "Indexes on user_id and book_id combinations"
+    - "Full-text search capabilities for book content"
+    - "Foreign key constraints for data integrity"
+    - "SQLite database file stored in /data directory"
+  tdd:
+    - "Test connection management"
+    - "Test CRUD operations"
+    - "Test query performance"
+    - "Test data integrity constraints"
+
+error_handling:
+  location: "/ai-bot/errors/"
+  files:
+    - error_handler.py
+    - logger.py
+  error_types:
+    - "User errors"
+    - "System errors"
+    - "API errors"
+    - "Database errors"
+  details:
+    - "Structured logging with timestamps and user context"
+    - "Error categorization (user error, system error, API error)"
+    - "Graceful degradation with fallback content"
+    - "User-friendly error messages"
+  tdd:
+    - "Test error capturing"
+    - "Test error classification"
+    - "Test graceful degradation"
+
+workflows:
+  book_processing:
+    steps:
+      - "User uploads book → Extract text → Split into chapters"
+      - "Queue chapters for Claude 3.5 analysis"
+      - "Store chapter analyses"
+      - "Queue book for Claude 3.7 synthesis"
+      - "Generate learning materials"
+      - "Schedule initial summary delivery"
+      - "Notify user of completion"
+
+  spaced_repetition:
+    steps:
+      - "User selects book → System creates schedule entries in database"
+      - "Background worker checks for due notifications"
+      - "Content selected based on interval and user progress"
+      - "Content formatted for Telegram"
+      - "Message sent to user"
+      - "Engagement recorded"
+      - "Next interval calculated"
+      - "Next notification scheduled"
+
+  interactive_learning:
+    steps:
+      - "User receives scheduled content"
+      - "Responds to questions/prompts"
+      - "Response analyzed by Claude 3.7"
+      - "Feedback generated"
+      - "Progress metrics updated"
+      - "Next content difficulty adjusted"
+      - "Learning gaps identified"
+      - "Future content prioritized accordingly"
+
+  user_interaction:
+    steps:
+      - "User registers with /register [timezone]"
+      - "User uploads book or selects from library"
+      - "User receives initial summary and concepts"
+      - "User sets up learning schedule with /schedule"
+      - "User receives spaced repetition content at intervals"
+      - "User takes quizzes and receives feedback"
+      - "User practices teaching concepts"
+      - "User views progress with /stats"

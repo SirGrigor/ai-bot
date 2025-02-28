@@ -5,7 +5,7 @@ import PyPDF2
 import ebooklib
 from ebooklib import epub
 from bs4 import BeautifulSoup
-from ai_bot.errors.logger import setup_logger
+from errors.logger import setup_logger
 
 logger = setup_logger(__name__)
 

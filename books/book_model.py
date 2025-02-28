@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
-from ai_bot.database.models import Book, Chapter
-from ai_bot.books.file_processor import extract_text, save_uploaded_file
-from ai_bot.books.chapter_detector import detect_chapters
+from database.models import Book, Chapter
+from books.file_processor import extract_text, save_uploaded_file
+from books.chapter_detector import detect_chapters
 from datetime import datetime
 import os
-from ai_bot.errors.logger import setup_logger
+from errors.logger import setup_logger
 
 logger = setup_logger(__name__)
 
