@@ -2,8 +2,8 @@ import pytest
 import os
 from unittest.mock import patch, MagicMock
 from sqlalchemy.orm import Session
-from ai_bot.database.database import init_db, get_db, engine, Base
-from ai_bot.database.models import User, Book, Chapter
+from database.database import init_db, get_db, engine, Base
+from database.models import User, Book, Chapter
 
 @pytest.fixture
 def test_db():

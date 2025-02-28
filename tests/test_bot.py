@@ -2,9 +2,9 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from telegram import Update, User, Message, Chat, Document
 from telegram.ext import Application, CommandHandler
-from ai_bot.bot.main import start, help_command
-from ai_bot.bot.command_handler import register_command, preferences_command
-from ai_bot.bot.message_router import handle_document, handle_text
+from bot.main import start, help_command
+from bot.command_handler import register_command, preferences_command
+from bot.message_router import handle_document, handle_text
 
 @pytest.fixture
 def mock_update():

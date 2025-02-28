@@ -3,8 +3,8 @@ import logging
 from unittest.mock import patch, MagicMock, AsyncMock
 from telegram import Update
 from telegram.ext import CallbackContext
-from ai_bot.errors.error_handler import error_handler
-from ai_bot.errors.logger import setup_logger
+from errors.error_handler import error_handler
+from errors.logger import setup_logger
 
 def test_setup_logger():
     """Test logger setup"""

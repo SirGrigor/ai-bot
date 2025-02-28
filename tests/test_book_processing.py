@@ -1,9 +1,9 @@
 import pytest
 import os
 from unittest.mock import MagicMock, patch, mock_open
-from ai_bot.books.file_processor import save_uploaded_file, extract_text_from_pdf, extract_text_from_epub, extract_text_from_txt, extract_text
-from ai_bot.books.chapter_detector import detect_chapters
-from ai_bot.books.book_model import create_book, process_book_file, get_user_books, get_book, get_book_chapters
+from books.file_processor import save_uploaded_file, extract_text_from_pdf, extract_text_from_epub, extract_text_from_txt, extract_text
+from books.chapter_detector import detect_chapters
+from books.book_model import create_book, process_book_file, get_user_books, get_book, get_book_chapters
 
 @pytest.fixture
 def mock_db():

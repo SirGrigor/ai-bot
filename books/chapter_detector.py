@@ -1,5 +1,5 @@
 import re
-from ai_bot.errors.logger import setup_logger
+from errors.logger import setup_logger
 
 logger = setup_logger(__name__)
 
